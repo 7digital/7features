@@ -245,3 +245,7 @@ content: '[-]';}
 .collapsed > h2:before,
 .collapsed > h3:before {
 content: '[+]';}
+
+#collapser {
+  font-weight: bold;
+}

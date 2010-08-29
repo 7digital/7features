@@ -1,13 +1,21 @@
-require 'cucumber/formatter/ordered_xml_markup'
-require 'cucumber/formatter/duration'
-require 'cucumber/formatter/io'
+begin
+	require 'cucumber/formatter/ordered_xml_markup'
+	require 'cucumber/formatter/duration'
+	require 'cucumber/formatter/io'
+rescue LoadError
+	puts "Can't load SevenFeatures"
+end
 
 module Cucumber
   module Formatter
     class SevenFeatures
-      include ERB::Util # for the #h method
-      include Duration
-      include Io
+	  begin
+		include ERB::Util # for the #h method
+		include Duration
+		include Io
+	  rescue NameError
+		puts "Can't load SevenFeatures"
+	  end
 
       def initialize(step_mother, path_or_io, options)
         @io = ensure_io(path_or_io, "html")
@@ -52,7 +60,7 @@ module Cucumber
         @builder << '<html xmlns ="http://www.w3.org/1999/xhtml">'
           @builder.head do
           @builder.meta(:content => 'text/html;charset=utf-8')
-          @builder.title 'Cucumber'
+          @builder.title 'Cucumber: ' + File.basename(Dir.getwd)
           inline_css
 		  google_js
           inline_js
@@ -62,11 +70,14 @@ module Cucumber
         @builder << '<div class="cucumber">'
         @builder.div(:id => 'cucumber-header') do
           @builder.div(:id => 'label') do
-            @builder.h1('Features')
+            @builder.h1('Cucumber: ' + File.basename(Dir.getwd))
           end
           @builder.div(:id => 'summary') do
             @builder.p('',:id => 'totals')
             @builder.p('',:id => 'duration')
+            @builder.div(:id => 'expand-collapse') do
+              @builder.p('Collapse\Expand All', :id => 'collapser')
+            end
           end
         end
       end
@@ -343,30 +354,32 @@ module Cucumber
             #get background steps
             if feature.instance_variable_get("@background")
               background = feature.instance_variable_get("@background").instance_variable_get("@steps").instance_variable_get("@steps")
-              count += background.size
+              count += background.size unless background.nil?
             end
             #get scenarios
             feature.instance_variable_get("@feature_elements").each do |scenario|
               #get steps
               steps = scenario.instance_variable_get("@steps").instance_variable_get("@steps")
-              count += steps.size
+			  unless steps.nil?
+				  count += steps.size unless steps.nil?
 
-              #get example table
-              examples = scenario.instance_variable_get("@examples_array")
-              unless examples.nil?
-                examples.each do |example|
-                  example_matrix = example.instance_variable_get("@outline_table").instance_variable_get("@cell_matrix")
-                  count += example_matrix.size
-                end
-              end
+				  #get example table
+				  examples = scenario.instance_variable_get("@examples_array")
+				  unless examples.nil?
+					examples.each do |example|
+					  example_matrix = example.instance_variable_get("@outline_table").instance_variable_get("@cell_matrix")
+					  count += example_matrix.size unless example_matrix.nil?
+					end
+				  end
 
-              #get multiline step tables
-              steps.each do |step|
-                multi_arg = step.instance_variable_get("@multiline_arg")
-                next if multi_arg.nil?
-                matrix = multi_arg.instance_variable_get("@cell_matrix")
-                count += matrix.size unless matrix.nil?
-              end
+				  #get multiline step tables
+				  steps.each do |step|
+					multi_arg = step.instance_variable_get("@multiline_arg")
+					next if multi_arg.nil?
+					matrix = multi_arg.instance_variable_get("@cell_matrix")
+					count += matrix.size unless matrix.nil?
+				  end
+				end
             end
           end
           return count
@@ -423,12 +436,18 @@ module Cucumber
       document.getElementById(element_id).style.color = '#000000';
       } 
 	 
-	  
-	  $(document).ready(function() {
+    $(document).ready(function() {
 		$('.feature h2').click(function() {
 			$(this).parent('.feature').toggleClass('collapsed');
 		});
 		
+
+		$("#collapser").css('cursor', 'pointer');
+		$("#collapser").click(function() {
+			$('.feature').toggleClass('collapsed');
+			$('.scenario').toggleClass('collapsed');
+		});
+
 		$('.scenario h3').click(function() {
 			$(this).parent('.scenario').toggleClass('collapsed');
 		});
@@ -460,14 +479,19 @@ module Cucumber
         end
 
         def print_stats(features)
+          @builder <<  "<script type=\"text/javascript\">document.getElementById('duration').innerHTML = \"Finished in #{format_duration(features.duration)} seconds\";</script>"
           @builder <<  "<script type=\"text/javascript\">document.getElementById('totals').innerHTML = \"#{print_stat_string(features)}\";</script>"
         end
 
         def print_stat_string(features)
           string = String.new
           string << dump_count(@step_mother.scenarios.length, "scenario")
+          scenario_count = print_status_counts{|status| @step_mother.scenarios(status)}
+          string << scenario_count if scenario_count
           string << "<br />"
           string << dump_count(@step_mother.steps.length, "step")
+          step_count = print_status_counts{|status| @step_mother.steps(status)}
+          string << step_count if step_count          
         end
 
         def print_status_counts
