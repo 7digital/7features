@@ -116,9 +116,7 @@ module Cucumber
       end
   
       def tag_name(tag_name)
-        @builder.text!(@tag_spacer) if @tag_spacer
-        @tag_spacer = ' '
-        @builder.span(tag_name, :class => 'tag')
+				@current_tag = tag_name
       end
   
       def feature_name(name)
@@ -172,6 +170,11 @@ module Cucumber
       def scenario_name(keyword, name, file_colon_line, source_indent)
         @listing_background = false
         @builder.h3(:id => "scenario_#{@scenario_number}") do
+					unless @current_tag.nil?
+						@builder.span(@current_tag, :class => 'tag') 
+	          @builder.text!(' ')					
+						@current_tag = nil
+					end
           @builder.span(keyword, :class => 'keyword')
           @builder.text!(' ')
           @builder.span(name, :class => 'val')
