@@ -1,0 +1,3 @@
+# 7Features
+## Execution example:
+cucumber features --format Cucumber::Formatter::SevenFeatures --out Example.html

@@ -4,7 +4,7 @@ require 'cucumber/formatter/io'
 
 module Cucumber
   module Formatter
-    class 7features
+    class SevenFeatures
       include ERB::Util # for the #h method
       include Duration
       include Io
@@ -248,7 +248,7 @@ module Cucumber
       end
 
       def exception(exception, status)
-        build_exception_detail(exception)
+        # build_exception_detail(exception)
       end
 
       def extra_failure_content(file_colon_line)
@@ -291,9 +291,6 @@ module Cucumber
         if table_row.exception
           @builder.tr do
             @builder.td(:colspan => @col_index.to_s, :class => 'failed') do
-              @builder.pre do |pre|
-                pre << format_exception(table_row.exception)
-              end
             end
           end
         end
@@ -319,40 +316,17 @@ module Cucumber
         @builder.pre(announcement, :class => 'announcement')
       end
 
-      protected
+      protected      
 
-        def build_exception_detail(exception)
-          backtrace = Array.new
-          @builder.div(:class => 'message') do
-            message = exception.message
-            if defined?(RAILS_ROOT) && message.include?('Exception caught')
-              matches = message.match(/Showing <i>(.+)<\/i>(?:.+)#(\d+)/)
-              backtrace += ["#{RAILS_ROOT}/#{matches[1]}:#{matches[2]}"]
-              message = message.match(/<code>([^(\/)]+)<\//m)[1]
-            end
-            @builder.pre do 
-              @builder.text!(message)
-            end
-          end
-          @builder.div(:class => 'backtrace') do
-            @builder.pre do
-              backtrace = exception.backtrace
-              backtrace.delete_if { |x| x =~ /\/gems\/(cucumber|rspec)/ }
-              @builder << backtrace_line(backtrace.join("\n"))
-            end
-          end
-          extra = extra_failure_content(backtrace)
-          @builder << extra unless extra == ""
-        end
-
-        def set_scenario_color(status)
-          if status == :undefined
+      def set_scenario_color(status)
+        if status == :undefined || status == :pending || status == :skipped		
             @builder.script do
-              @builder.text!("makeClear('cucumber-header');") unless @header_red
-              @builder.text!("makeClear('scenario_#{@scenario_number}');") unless @scenario_red
+              @builder.text!("makeBlack('cucumber-header');") unless @header_red
+              @builder.text!("makeBlack('scenario_#{@scenario_number}');") unless @scenario_red
             end 
-          end
-          if status == :failed
+        end		  
+		
+        if status == :failed
             @builder.script do
               @builder.text!("makeRed('cucumber-header');") unless @header_red
               @header_red = true
@@ -444,10 +418,11 @@ module Cucumber
       document.getElementById(element_id).style.color = '#C40D0D';
       }
 	  
-      function makeClear(element_id) {
+      function makeBlack(element_id) {
       document.getElementById(element_id).style.background = '#FFFFFF';
       document.getElementById(element_id).style.color = '#000000';
-      }
+      } 
+	 
 	  
 	  $(document).ready(function() {
 		$('.feature h2').click(function() {
@@ -472,10 +447,6 @@ module Cucumber
             result = ((@step_number).to_f / @step_count.to_f * 1000).to_i / 10.0
           end
           result
-        end
-
-        def format_exception(exception)
-          (["#{exception.message}"] + exception.backtrace).join("\n")
         end
 
         def backtrace_line(line)

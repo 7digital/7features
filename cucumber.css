@@ -88,26 +88,22 @@ body {
 .cucumber table td.failed, .cucumber table td.passed, .cucumber table td.skipped, .cucumber table td.pending, .cucumber table td.undefined, td table td.failed, td table td.passed, td table td.skipped, td table td.pending, td table td.undefined, th table td.failed, th table td.passed, th table td.skipped, th table td.pending, th table td.undefined {
   padding-left: 18px;
   padding-right: 10px;
+  background: white;
 }
 .cucumber table td.failed, td table td.failed, th table td.failed {
-  background: #fffbd3;
   color: #c20000;
 }
 .cucumber table td.passed, td table td.passed, th table td.passed {
-  background: #dbffb4;
   color: #3d7700;
 }
 .cucumber table td.skipped, td table td.skipped, th table td.skipped {
-  background: #e0ffff;
-  color: #001111;
+  color: black;
 }
 .cucumber table td.pending, td table td.pending, th table td.pending {
-  background: #fcfb98;
-  color: #131313;
+  color: black;
 }
 .cucumber table td.undefined, td table td.undefined, th table td.undefined {
-  background: white;
-  color: #131313;
+  color: black;
 }
 .cucumber ol, td ol, th ol {
   list-style: none;
@@ -126,24 +122,24 @@ body {
   font-weight: bold;
 }
 .cucumber ol li.failed, td ol li.failed, th ol li.failed {
-  background: #fffbd3;
+  background: white;
   color: #c20000;
 }
 .cucumber ol li.passed, td ol li.passed, th ol li.passed {
-  background: #dbffb4;
+  background: white;
   color: #3d7700;
 }
 .cucumber ol li.skipped, td ol li.skipped, th ol li.skipped {
-  background: #e0ffff;
-  color: #001111;
+  background: white;
+  color: black;
 }
 .cucumber ol li.pending, td ol li.pending, th ol li.pending {
-  background: #fcfb98;
-  color: #131313;
+  background: white;
+  color: black;
 }
 .cucumber ol li.undefined, td ol li.undefined, th ol li.undefined {
   background: white;
-  color: #131313;
+  color: black;
 }
 .cucumber #summary, td #summary, th #summary {
   margin: 0px;
@@ -222,13 +218,13 @@ body {
   color: white;
 }
 .ruby .offending {
-  background: #333333;
+  background: white;
 }
 .ruby .linenum {
   width: 75px;
   padding: 0.1em 1em 0.2em 0;
   color: #000000;
-  background: #FFFBD3;
+  background: white;
 }
 
 .collapsed > * {
